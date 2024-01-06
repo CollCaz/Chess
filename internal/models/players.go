@@ -1,9 +1,19 @@
 package data
 
 import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+type PlayerModel struct {
+	DB pgxpool.Pool
+}
 
 type Player struct {
+	ID             int
 	Name           string
+	Version        int
+	CreatedAt      time.Time
 	WorldRank      int
 	BYear          int
 	Federation     string
