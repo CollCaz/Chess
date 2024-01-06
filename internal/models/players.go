@@ -1,10 +1,13 @@
 package data
 
-import "encoding/json"
 import (
+	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
 type PlayerModel struct {
 	DB pgxpool.Pool
 }
@@ -54,7 +57,7 @@ func (p Player) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
-func GetPlayer(id int) (*Player, error) {
+func (pm *PlayerModel) GetPlayer(id int) (*Player, error) {
 	player := Player{
 		Name:           "Carlson, Magnus",
 		WorldRank:      1,
@@ -68,4 +71,19 @@ func GetPlayer(id int) (*Player, error) {
 		BlitzRating:    2886,
 	}
 	return &player, nil
+}
+
+func (pm *PlayerModel) InsertPlayer(p *Player) error {
+	query := `
+  INSERT INTO players (name, world_rank, birth_year, federation, sex, fide_id, fide_title, standard_rating, rapid_ratig, blitz_rating)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+  RETURNING id, created_at, version
+  `
+
+	args := []any{p.Name, p.WorldRank, p.BYear, p.Federation, p.Sex, p.FideID, p.FideTttle, p.StandardRating, p.RapidRating, p.BlitzRating}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return pm.DB.QueryRow(ctx, query, args...).Scan(&p.ID, &p.CreatedAt, &p.Version)
 }
