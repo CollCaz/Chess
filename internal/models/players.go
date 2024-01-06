@@ -13,19 +13,19 @@ type PlayerModel struct {
 }
 
 type Player struct {
-	ID             int
-	Name           string
-	Version        int
-	CreatedAt      time.Time
-	WorldRank      int
-	BYear          int
-	Federation     string
-	Sex            string
-	FideID         int
-	FideTttle      string
-	StandardRating int
-	RapidRating    int
-	BlitzRating    int
+	ID             int       `json:"id"`
+	Name           string    `json:"name"`
+	Version        int       `json:"version"`
+	CreatedAt      time.Time `json:"createdat"`
+	WorldRank      int       `json:"worldrank"`
+	BYear          int       `json:"byear"`
+	Federation     string    `json:"federation"`
+	Sex            string    `json:"sex"`
+	FideID         int       `json:"fideid"`
+	FideTttle      string    `json:"fidetttle"`
+	StandardRating int       `json:"standardrating"`
+	RapidRating    int       `json:"rapidrating"`
+	BlitzRating    int       `json:"blitzrating"`
 }
 
 func (p Player) MarshalJSON() ([]byte, error) {

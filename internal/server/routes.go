@@ -2,6 +2,7 @@ package server
 
 import (
 	data "Chess/internal/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,12 +12,13 @@ import (
 
 func (s *Server) RegisterRoutes() http.Handler {
 	e := echo.New()
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	e.GET("/", s.helloWorldHandler)
-	e.GET("/game/:id", s.getGameByID)
-	e.GET("/player/:id", s.getPlayerByID)
+	e.GET("/games/:id", s.getGameByID)
+	e.GET("/players/:id", s.getPlayerByID)
+	e.POST("/players", s.insertPlayer)
 
 	return e
 }
@@ -50,10 +52,21 @@ func (s *Server) getPlayerByID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	resp, err := data.GetPlayer(id)
+	resp, err := data.GetGame(id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, resp)
+}
+
+func (s *Server) insertPlayer(c echo.Context) error {
+	fmt.Println("AAA")
+	fmt.Println(c.Request())
+	player := new(data.Player)
+	// add player to database
+	if err := c.Bind(player); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, player)
 }
