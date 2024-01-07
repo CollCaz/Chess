@@ -15,6 +15,8 @@ type PlayerModel struct {
 type Player struct {
 	ID             int       `json:"id"`
 	Name           string    `json:"name"`
+	FirstName      string    `json:"first_name"`
+	LastName       string    `json:"last_name"`
 	Version        int       `json:"version"`
 	CreatedAt      time.Time `json:"createdat"`
 	WorldRank      int       `json:"worldrank"`
@@ -36,6 +38,8 @@ func (p Player) MarshalJSON() ([]byte, error) {
 
 	aux := struct {
 		Name       string
+		FirstName  string
+		LastName   string
 		WorldRank  int
 		BYear      int
 		Federation string
@@ -45,6 +49,8 @@ func (p Player) MarshalJSON() ([]byte, error) {
 		Ratings    map[string]int
 	}{
 		Name:       p.Name,
+		FirstName:  p.FirstName,
+		LastName:   p.LastName,
 		WorldRank:  p.WorldRank,
 		BYear:      p.BYear,
 		Federation: p.Federation,
@@ -75,7 +81,7 @@ func (pm PlayerModel) GetPlayer(id int) (*Player, error) {
 	*/
 
 	query := `
-  SELECT id, name, version, created_at, world_rank, birth_year, federation, sex, fide_id, fide_title, standard_rating, rapid_rating, blitz_rating
+  SELECT id, name, first_name, last_name, version, created_at, world_rank, birth_year, federation, sex, fide_id, fide_title, standard_rating, rapid_rating, blitz_rating
   FROM players
   WHERE id = $1
   `
@@ -86,6 +92,8 @@ func (pm PlayerModel) GetPlayer(id int) (*Player, error) {
 	err := pm.DB.QueryRow(ctx, query, id).Scan(
 		&player.ID,
 		&player.Name,
+		&player.FirstName,
+		&player.LastName,
 		&player.Version,
 		&player.CreatedAt,
 		&player.WorldRank,
@@ -107,13 +115,13 @@ func (pm PlayerModel) GetPlayer(id int) (*Player, error) {
 
 func (pm PlayerModel) InsertPlayer(p *Player) error {
 	query := `
-  INSERT INTO players (name, world_rank, birth_year, federation, sex, fide_id, fide_title, standard_rating, rapid_rating, blitz_rating)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+  INSERT INTO players (name, first_name, last_name, world_rank, birth_year, federation, sex, fide_id, fide_title, standard_rating, rapid_rating, blitz_rating)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 
   RETURNING id, created_at, version
   `
 
-	args := []any{&p.Name, &p.WorldRank, &p.BYear, &p.Federation, &p.Sex, &p.FideID, &p.FideTttle, &p.StandardRating, &p.RapidRating, &p.BlitzRating}
+	args := []any{&p.Name, &p.FirstName, &p.LastName, &p.WorldRank, &p.BYear, &p.Federation, &p.Sex, &p.FideID, &p.FideTttle, &p.StandardRating, &p.RapidRating, &p.BlitzRating}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

@@ -40,7 +40,7 @@ func (s *Server) getGameByID(c echo.Context) error {
 	}
 	resp, err := app.App.Models.Game.GetGame(id)
 	if err != nil {
-		panic("wtf")
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, resp)

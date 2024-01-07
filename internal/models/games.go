@@ -17,15 +17,14 @@ type Game struct {
 	ID        int
 	Version   int
 	CreatedAt time.Time
-	Event     string
-	Site      string
-	Date      time.Time
-	Round     int8
-	White     int
-	Black     int
-	Result    string
-	// PGN    [][2]string
-	PGN string
+	Event     string `json:"event"`
+	Site      string `json:"site"`
+	Date      string `json:"date"`
+	Round     int8   `json:"round"`
+	White     string `json:"white"`
+	Black     string `json:"black"`
+	Result    string `json:"result"`
+	PGN       string `json:"pgn"`
 }
 
 func (g Game) MarshalJSON() ([]byte, error) {
@@ -41,12 +40,12 @@ func (g Game) MarshalJSON() ([]byte, error) {
 	}{
 		Event:  g.Event,
 		Site:   g.Site,
-		Date:   g.Date.Format(time.DateOnly),
+		Date:   g.Date,
 		Round:  g.Round,
 		Result: g.Result,
+		White:  g.White,
+		Black:  g.Black,
 		PGN:    fmt.Sprint(g.PGN),
-		// White:  g.White,
-		// Black:  g.Black,
 	}
 
 	return json.Marshal(aux)
@@ -56,7 +55,7 @@ func (gm GameModel) GetGame(id int) (*Game, error) {
 	game := Game{}
 
 	query := `
-  SELECT id, version, event, site, date, round, white, black, result, pgn
+  SELECT id, created_at, version, event, site, date, round, white, black, result, pgn
   FROM games
   WHERE id = $1
   `
@@ -64,12 +63,15 @@ func (gm GameModel) GetGame(id int) (*Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	var tempDate time.Time
+
 	err := gm.DB.QueryRow(ctx, query, id).Scan(
 		&game.ID,
+		&game.CreatedAt,
 		&game.Version,
 		&game.Event,
 		&game.Site,
-		&game.Date,
+		&tempDate,
 		&game.Round,
 		&game.White,
 		&game.Black,
@@ -77,8 +79,11 @@ func (gm GameModel) GetGame(id int) (*Game, error) {
 		&game.PGN,
 	)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
+
+	game.Date = tempDate.Format(time.DateOnly)
 
 	return &game, nil
 }

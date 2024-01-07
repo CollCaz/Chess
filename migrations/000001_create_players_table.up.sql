@@ -2,6 +2,8 @@ CREATE TABLE IF NOT EXISTS players (
   id bigserial PRIMARY KEY,
   created_at timestamp(0) with time zone NOT NULL DEFAULT NOW(),
   name text NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
   world_rank integer NOT NULL,
   birth_year integer NOT NULL,
   federation text NOT NULL,
