@@ -16,6 +16,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.Use(middleware.Recover())
 
 	e.GET("/", s.helloWorldHandler)
+	e.GET("/games", s.getGame)
 	e.GET("/games/:id", s.getGameByID)
 	e.GET("/players/:id", s.getPlayerByID)
 	e.POST("/players", s.insertPlayer)
@@ -36,7 +37,7 @@ func (s *Server) getGameByID(c echo.Context) error {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, nil)
+		return c.JSON(http.StatusBadRequest, err)
 	}
 	resp, err := app.App.Models.Game.GetGame(id)
 	if err != nil {
@@ -44,6 +45,15 @@ func (s *Server) getGameByID(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, resp)
+}
+
+func (s *Server) getGame(c echo.Context) error {
+	input := data.Game{}
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, input)
 }
 
 func (s *Server) getPlayerByID(c echo.Context) error {
