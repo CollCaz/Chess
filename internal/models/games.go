@@ -114,11 +114,29 @@ func (gm GameModel) QueryGame(search *SearchGame) (*Game, error) {
 	query := `
   SELECT id, created_at, version, event, site, date, round, white, black, result, pgn
   FROM games
-  WHERE round = $1 AND (result = $2)
+  WHERE 
+  ($1 LIKE '' OR event LIKE $1)
+  AND
+  ($2 LIKE '' OR site LIKE $2)
+  AND
+  (cast($3 as text) LIKE '' OR text(date) = $3)
+  AND
+  ($4 = 0 OR round = $4)
+  AND
+  ($5 LIKE '' OR (to_tsvector('simple', white) @@ plainto_tsquery('simple', $5)))
+  AND
+  ($6 LIKE '' OR (to_tsvector('simple', black) @@ plainto_tsquery('simple', $6)))
+  AND
+  ($7 LIKE '' OR result LIKE $7)
+  AND
+  ($8 LIKE '' OR pgn like $8)
   `
 
 	sg := search.Game
-	args := []any{sg.Round, sg.Result}
+	// substring match the pgn string, in order to find games with certain moves
+	// must be done with Sprintf because doing '%$8$' in the qert string breaks the query
+	pgnSearch := fmt.Sprintf("%%%s%%", sg.PGN)
+	args := []any{sg.Event, sg.Site, sg.Date, sg.Round, sg.White, sg.Black, sg.Result, pgnSearch}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 
