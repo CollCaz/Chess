@@ -1,12 +1,30 @@
 
 # Project Chess
 
-One Paragraph of project description goes here
+Chess database API to store chess games and query them for various information.
+This project was started as proof of what i learned before applying to a paid internship, I worked on it quickly and several features are missing.
 
-## Getting Started
+## Done
+- [x] Post a player
+- [x] Post a game
+- [x] Get a player by ID
+- [x] Get a game by ID
+- [x] Get all games from an abitrary query
+## Todo
+- [ ] Get all players from an arbitrary query
+- [ ] Validate Inputs
+- [ ] Send custom errors to the user
+- [ ] More tests
+- [ ] Store the players as a PostgreSQL object and use that in the Games instead of the player's names
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
+## End Points
+### Get /player/:id
+  Get a player by their ID
+### Post /player
+  Add a player by sending json
+  Example TODO
+### Get /game/:id
+  Get a game by ID
 ## MakeFile
 
 run all make commands with clean tests
