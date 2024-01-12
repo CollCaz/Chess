@@ -53,7 +53,14 @@ func (s *Server) getGame(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusOK, input)
+	search := data.SearchGame{}
+	search.Game = input
+	resp, err := app.App.Models.Game.QueryGame(&search)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resp)
 }
 
 func (s *Server) getPlayerByID(c echo.Context) error {
